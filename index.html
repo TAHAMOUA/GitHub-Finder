@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Finder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <h1 class="logo">Github Finder</h1>
+    <button class="btn">Favoris (3)</button>
+  </header>
+
+  <main class="container">
+
+    <!-- SEARCH BAR -->
+    <div class="search-box">
+      <input type="text" placeholder="Ex: gaearon" />
+      <button class="btn">Rechercher</button>
+    </div>
+
+    <!-- SECTION WELCOME -->
+    <section class="card">
+      <p class="label">Welcome</p>
+      <h2>Bienvenue 👋</h2>
+      <p>Écris un username GitHub pour afficher son profil.</p>
+    </section>
+
+    <!-- SECTION LOADING -->
+    <section class="card">
+      <p class="label">Loading</p>
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Chargement de @gaearon...</p>
+      </div>
+    </section>
+
+    <!-- SECTION ERROR -->
+    <section class="card card--error">
+      <p class="label">Error</p>
+      <h2>Utilisateur introuvable</h2>
+      <p>Le profil <strong>xyz_invalid</strong> n'existe pas sur GitHub.</p>
+      <button class="btn btn--danger">Réessayer</button>
+    </section>
+
+    <!-- SECTION PROFILE -->
+    <section class="card">
+      <p class="label">Profile</p>
+
+      <div class="profile-top">
+        <img
+          src="https://avatars.githubusercontent.com/u/810438?v=4"
+          alt="avatar"
+          class="avatar"
+        />
+        <div>
+          <h2>Dan Abramov</h2>
+          <p class="muted">@gaearon</p>
+          <p class="muted">Working on React. Interested in tools and learning.</p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <strong>89K</strong>
+          <span>Followers</span>
+        </div>
+        <div class="stat">
+          <strong>171</strong>
+          <span>Following</span>
+        </div>
+        <div class="stat">
+          <strong>278</strong>
+          <span>Repos</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a href="#" class="btn">Voir sur GitHub</a>
+        <button class="btn btn--outline">Ajouter aux favoris</button>
+      </div>
+    </section>
+
+    <!-- SECTION BOOKMARKS -->
+    <section class="card">
+      <p class="label">Bookmarks</p>
+
+      <div class="bookmarks-header">
+        <h2>Mes Favoris (3)</h2>
+        <button class="btn btn--outline">Retour</button>
+      </div>
+
+      <div class="bookmark-item">
+        <img src="https://avatars.githubusercontent.com/u/810438?v=4" alt="avatar" class="avatar-sm" />
+        <div>
+          <strong>Dan Abramov</strong>
+          <p class="muted">@gaearon</p>
+        </div>
+        <div class="bookmark-actions">
+          <button class="btn">Charger</button>
+          <button class="btn btn--danger">Supprimer</button>
+        </div>
+      </div>
+
+      <div class="bookmark-item">
+        <img src="https://avatars.githubusercontent.com/u/153506028?v=4" alt="avatar" class="avatar-sm" />
+        <div>
+          <strong>ELKHATTAB SMAIL</strong>
+          <p class="muted">@ElkhattabIsmail</p>
+        </div>
+        <div class="bookmark-actions">
+          <button class="btn">Charger</button>
+          <button class="btn btn--danger">Supprimer</button>
+        </div>
+      </div>
+
+      <div class="bookmark-item">
+        <img src="https://avatars.githubusercontent.com/u/6412038?v=4" alt="avatar" class="avatar-sm" />
+        <div>
+          <strong>Evan You</strong>
+          <p class="muted">@yyx990803</p>
+        </div>
+        <div class="bookmark-actions">
+          <button class="btn">Charger</button>
+          <button class="btn btn--danger">Supprimer</button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</body>
+</html>
