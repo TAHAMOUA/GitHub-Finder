@@ -1,177 +1,136 @@
-const testUsers = [
-    {
-        id: 1,
-        login: "torvalds",
-        name: "Linus Torvalds",
-        avatar_url: "https://avatars.githubusercontent.com/u/1024588?v=4",
-        bio: "Linux creator",
-        followers: 200000,
-        following: 0,
-        public_repos: 50
-    },
-    {
-        id: 2,
-        login: "gvanrossum",
-        name: "Guido van Rossum",
-        avatar_url: "https://avatars.githubusercontent.com/u/6490553?v=4",
-        bio: "Python creator",
-        followers: 50000,
-        following: 50,
-        public_repos: 30
-    }
-];
-
-// Repositories de test
-
-const testRepos = [
-    {
-        name: "linux",
-        description: "Linux kernel",
-        language: "C",
-        stargazers_count: 15000,
-        forks_count: 2000,
-        html_url: "https://github.com/torvalds/linux"
-    },
-    {
-        name: "cpython",
-        description: "Python interpreter",
-        language: "C",
-        stargazers_count: 50000,
-        forks_count: 23000,
-        html_url: "https://github.com/python/cpython"
-    }
-];
-
-
 const state = {
     currentUser: null,      // Utilisateur actuellement affiché
     bookmarks: [],          // Favoris sauvegardés
-    isViewingBookmarks: false  // Affiche favoris ou résultats
-
+    repos:[]
 };
 
-//etape 3 
+// DOM
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const welcome = document.getElementById("welcomeSection");
+const loading = document.getElementById("loadingSection");
+const error = document.getElementById("errorSection");
+const errorText = document.getElementById("errorText");
+const profileSection = document.getElementById("profileSection");
+const userProfile = document.getElementById("userProfile");
+const reposList = document.getElementById("reposList");
 
 
-let searchInput=document.getElementById("search-box");
-let searchBtn = document.getElementById("btn-search")
-let btnFav = document.getElementById("btn-fav")
-let welcome = document.getElementById("welcome-box")
-let loading = document.getElementById("loading-box")
-let error = document.getElementById("error-box")
-let loading = document.getElementById("loading-box")
-let userProfile=document.getElementById("profile-card")
-let bookmarks =document.getElementById("bookmarks-card")
+async function fetchUser(username) {
 
+    try {
 
+    const user=await fetch("https://api.github.com/user")
+        if(!Response.ok){
+            throw new Error("user not found")
+        }
+        const data =await Response.json()
+    } catch (error) {
+       console.log(error.message)
+        
 
-
-// etape 4
-
-
-function displayUserProfile(user) {
-
-    // Mettre à jour les éléments du profil
-    userProfile.textContent=user.name
-    userProfile.textContent=user.id
-    
-    
-    // Afficher la carte profil
-    userProfile.style.display="block"
-    
-    // Masquer l écran d'accueil
-    userProfile.style.display="none"
-  
+    }
 }
 
-// etape 5
+// UI
+function showLoading() {
+    loading.classList.remove("hidden");
+    welcome.classList.add("hidden");
+    error.classList.add("hidden");
+    profileSection.classList.add("hidden");
+}
+ 
+function showError(msg) {
+    errorText.textContent = msg;
+    error.classList.remove("hidden");
+    loading.classList.add("hidden");
+}
 
-function displayRepositories(repos) {
+function showProfile() {
+    profileSection.classList.remove("hidden");
+    loading.classList.add("hidden");
+    error.classList.add("hidden");
+}
 
-    // Vider la liste
-   bookmarks.innerHTML = "";
-    
-    // Parcourir les repos et créer une carte pour chacun
-   testRepos.forEach(repo=>{
-        const card = document.createElement("div");
-    card.className = "repo-card";
+// Display
+function displayUser(user) {
+    userProfile.innerHTML = `
+        <img src="${user.avatar_url}" width="100" style="border-radius:50%">
+        
+        <h2>${user.name}</h2>
+        <p class="muted">@${user.login}</p>
+        <p>${user.bio || ""}</p>
 
-    card.innerHTML = `
-        <h3>${repo.name}</h3>
-        <p>${repo.description || "Pas de description"}</p>
-        <a href="${repo.html_url}" target="_blank">Voir le repo</a>
+        <p>👥 ${user.followers} • ${user.following}</p>
+        <p>📦 ${user.public_repos} repos</p>
+
+        <div class="profile-actions">
+            <button class="btn btn--outline" id="favBtn">
+                ⭐ Ajouter aux favoris
+            </button>
+
+            <a href="https://github.com/${user.login}" target="_blank" class="btn">
+                🌐 Voir GitHub
+            </a>
+        </div>
     `;
 
-    bookmarks.appendChild(card);
-});
+    // EVENT FAVORIS (simple version)
+    const favBtn = document.getElementById("favBtn");
+
+    favBtn.addEventListener("click", () => {
+        alert(`${user.login} ajouté aux favoris ⭐`);
+    });
 }
 
-// etape 6 
+function displayRepos(repos) {
+    reposList.innerHTML = "";
 
-function showLoading(){
-    loading.style.display="block"
-    error.style.display="none"
-    userProfile.style.display="none"
-    welcome.style.display="none"
+    repos.forEach(repo => {
+        const el = document.createElement("div");
+        el.className = "repo-card";
+
+        el.innerHTML = `
+            <h3>${repo.name}</h3>
+            <p>${repo.description || ""}</p>
+            <div class="repo-meta">
+                ⭐ ${repo.stargazers_count} • 🍴 ${repo.forks_count}
+            </div>
+            <a href="${repo.html_url}" target="_blank">Voir le repo</a>
+        `;
+
+        reposList.appendChild(el);
+    });
 }
 
-function showError(message){
-     
-     error.textContent = message;
-     error.style.display="block";
-     loading.style.display="none";
-}
-
-function showWelcome(){
-    welcome.style.display="block";
-    userProfile.style.display="none"
-    error.style.display="none"
-    loading.style.display="none"
-}
-
-// etape 7
-
-function searchUserLocal(username) {
-
-    // Afficher le loader
+// Search
+function searchUser(username) {
     showLoading();
 
-    // Simuler un délai réseau
     setTimeout(() => {
+        const user = testUsers.find(
+            u => u.login.toLowerCase() === username.toLowerCase()
+        );
 
-        // Vérifier si username 
-        if (!username) {
-            showError("Veuillez entrer un nom d'utilisateur");
+        if (!user) {
+            showError("Utilisateur introuvable");
             return;
         }
-    displayRepositories(testRepos);
-    },1500);
+
+        displayUser(user);
+        displayRepos(testRepos);
+        showProfile();
+
+    }, 800);
 }
 
-// etape 8 event listeners
-
+// Events
 searchBtn.addEventListener("click", () => {
-    const username = searchInput.value.trim();
-    searchUserLocal(username);
+    searchUser(searchInput.value.trim());
 });
 
-searchInput.addEventListener('keypress', (e) => {
+searchInput.addEventListener("keypress", e => {
     if (e.key === "Enter") {
-        const username = searchInput.value.trim();
-        searchUserLocal(username);
+        searchUser(searchInput.value.trim());
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
