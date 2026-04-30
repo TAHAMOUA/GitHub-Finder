@@ -1,4 +1,3 @@
-
 //  STATE
 
 const state = {
@@ -23,19 +22,35 @@ const reposList      = document.getElementById("reposList");
 
 //  API
 
+            
 async function fetchUser(userName) {
     const response = await fetch(`https://api.github.com/users/${userName}`);
-    if (!response.ok) throw new Error("Utilisateur introuvable ❌");
+
+    if (response.status === 404) {
+        throw new Error(`User "@${userName}" not found`);
+    } else if (response.status === 403) {
+        throw new Error('API rate limit reached. Try later.');
+    } else if (!response.ok) {
+        throw new Error('Unexpected error occurred');
+    }
+
     return await response.json();
 }
+
 
 async function fetchRepos(userName) {
     const response = await fetch(`https://api.github.com/users/${userName}/repos?sort=stars`);
-    if (!response.ok) throw new Error("Impossible de charger les repos ❌");
+
+    if (response.status === 403) {
+        throw new Error('Rate limit reached');
+    } else if (!response.ok) {
+        throw new Error('Impossible de charger les repos');
+    }
+
     return await response.json();
 }
 
-//  UI STATES
+//  showLoading
 
 function showLoading() {
     loadingSection.classList.remove("hidden");
@@ -43,21 +58,22 @@ function showLoading() {
     errorSection.classList.add("hidden");
     profileSection.classList.add("hidden");
 }
-
+// showError
 function showError(msg) {
     errorText.textContent = msg;
     errorSection.classList.remove("hidden");
     loadingSection.classList.add("hidden");
     profileSection.classList.add("hidden");
 }
-
+// showProfile
 function showProfile() {
     profileSection.classList.remove("hidden");
     loadingSection.classList.add("hidden");
     errorSection.classList.add("hidden");
 }
 
-//  DISPLAY
+//  DISPLAYUSER
+
 
 function displayUser(user) {
     userProfile.innerHTML = `
@@ -65,11 +81,11 @@ function displayUser(user) {
         <h2>${user.name || user.login}</h2>
         <p class="muted">@${user.login}</p>
         <p>${user.bio || ""}</p>
-        <p>👥 ${user.followers} followers • ${user.following} following</p>
-        <p>📦 ${user.public_repos} repos</p>
+        <p>${user.followers} followers • ${user.following} following</p>
+        <p> ${user.public_repos} repos</p>
         <div class="profile-actions">
-            <button class="btn btn--outline" id="favBtn">⭐ Ajouter aux favoris</button>
-            <a href="https://github.com/${user.login}" target="_blank" class="btn">🌐 Voir GitHub</a>
+            <button class="btn btn--outline" id="favBtn"> Ajouter aux favoris</button>
+            <a href="https://github.com/${user.login}" target="_blank" class="btn"> Voir GitHub</a>
         </div>
     `;
 
@@ -77,7 +93,7 @@ function displayUser(user) {
         addBookmark(user);
     });
 }
-
+// displayRepos
 function displayRepos(repos) {
     reposList.innerHTML = "";
 
@@ -93,7 +109,7 @@ function displayRepos(repos) {
             <h3>${repo.name}</h3>
             <p>${repo.description || ""}</p>
             <div class="repo-meta">
-                ⭐ ${repo.stargazers_count} • 🍴 ${repo.forks_count}
+                 ${repo.stargazers_count} •  ${repo.forks_count}
             </div>
             <a href="${repo.html_url}" target="_blank">Voir le repo →</a>
         `;
@@ -141,3 +157,13 @@ searchInput.addEventListener("keypress", (e) => {
         searchUser(searchInput.value.trim());
     }
 });
+// addBookmark
+function addBookmark(user) {
+    
+    const exists = state.bookmarks.find(u => u.login === user.login);
+    if (exists) return;
+
+    state.bookmarks.push(user);
+
+    localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks));
+}
