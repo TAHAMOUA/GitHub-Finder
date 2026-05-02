@@ -2,7 +2,9 @@
 const state = {
     currentUser: null,
     bookmarks: JSON.parse(localStorage.getItem('githubBookmarks')) || [],
-    repos: []
+    repos: [],
+    isViewingBookmarks: false
+
 };
 
 // DOM ELEMENTS
@@ -15,6 +17,7 @@ const errorText      = document.getElementById("errorText");
 const profileSection = document.getElementById("profileSection");
 const userProfile    = document.getElementById("userProfile");
 const reposList      = document.getElementById("reposList");
+const bookmarksSection = document.getElementById("bookmarksSection")
 
 // DISPLAY USER
 function displayUser(user) {
@@ -37,7 +40,7 @@ function displayUser(user) {
 
     document.getElementById("toggleBtn").addEventListener("click", () => {
         toggleBookmark(user);
-        displayUser(user);
+        
     });
 }
 
@@ -87,16 +90,21 @@ function showProfile() {
 // API
 async function fetchUser(userName) {
     const response = await fetch(`https://api.github.com/users/${userName}`);
-    if (response.status === 404) throw new Error(`User "@${userName}" not found`);
-    if (response.status === 403) throw new Error('API rate limit reached. Try later.');
-    if (!response.ok) throw new Error('Unexpected error occurred');
+    if (response.status === 404) 
+        throw new Error(`User "@${userName}" not found`);
+    if (response.status === 403) 
+        throw new Error('API rate limit reached. Try later.');
+    if (!response.ok) 
+        throw new Error('Unexpected error occurred');
     return await response.json();
 }
 
 async function fetchRepos(userName) {
     const response = await fetch(`https://api.github.com/users/${userName}/repos?sort=stars`);
-    if (response.status === 403) throw new Error('Rate limit reached');
-    if (!response.ok) throw new Error('Impossible de charger les repos');
+    if (response.status === 403) 
+        throw new Error('Rate limit reached');
+    if (!response.ok) 
+        throw new Error('Impossible de charger les repos');
     return await response.json();
 }
 
@@ -125,12 +133,16 @@ async function searchUser(userName) {
 // EVENTS
 searchBtn.addEventListener("click", () => searchUser(searchInput.value.trim()));
 searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") searchUser(searchInput.value.trim());
+    if (e.key === "Enter") 
+        searchUser(searchInput.value.trim());
 });
+document.querySelector(".navbar .btn").addEventListener("click",()=>{
+    toggleBookmarksView();
+})
 
 // BOOKMARKS
 function displayBookmarks() {
-    const bookmarksSection = document.getElementById("bookmarksSection");
+    
     if (state.bookmarks.length === 0) {
         bookmarksSection.innerHTML = "<p>Aucun favori sauvegardé.</p>";
         return;
@@ -145,14 +157,7 @@ function displayBookmarks() {
     `).join("");
 }
 
-function toggleBookmark(user) {
-    const exists = state.bookmarks.find(u => u.login === user.login);
-    if (exists) {
-        removeBookmark(user.login);
-    } else {
-        addBookmark(user);
-    }
-}
+
 
 function addBookmark(user) {
     state.bookmarks.push(user);
@@ -180,6 +185,19 @@ function updateBookmarkCount() {
     const count = state.bookmarks.length;
     countEl.textContent = ` ${count} ${count > 1 ? "" : ""}`;
 }
+
+// toggleBookmark
+function toggleBookmark(user) {
+    const exists = state.bookmarks.find(u => u.login === user.login);
+    if (exists) {
+        removeBookmark(user.login);
+        updateBookmarkButton(false)
+    } else {
+        addBookmark(user);
+        updateBookmarkButton(true);
+    }
+}
+
 // updateBookmarkButton
 function updateBookmarkButton(isBookmarked) {
     const toggleBtn = document.getElementById("toggleBtn");
@@ -187,6 +205,22 @@ function updateBookmarkButton(isBookmarked) {
     toggleBtn.textContent = isBookmarked
         ? "🗑️ Retirer des favoris"
         : "⭐ Ajouter aux favoris";
+}
+function toggleBookmarksView() {
+    state.isViewingBookmarks = !state.isViewingBookmarks;
+    if (state.isViewingBookmarks) {
+        bookmarksSection.classList.remove("hidden");
+        profileSection.classList.add("hidden");
+        welcome.classList.add("hidden");
+        errorSection.classList.add("hidden");
+    } else {
+        bookmarksSection.classList.add("hidden");
+        if (state.currentUser) {
+            showProfile();
+        } else {
+            welcome.classList.remove("hidden");
+        }
+    }
 }
 
 updateBookmarkCount();
