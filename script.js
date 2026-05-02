@@ -136,18 +136,34 @@ searchInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") 
         searchUser(searchInput.value.trim());
 });
-document.querySelector(".navbar .btn").addEventListener("click",()=>{
-    toggleBookmarksView();
-})
+document.getElementById('toggleBookmarks')
+    .addEventListener('click', toggleBookmarksView);
+
+
+document.getElementById('backBtn')
+    .addEventListener('click', () => {
+        state.isViewingBookmarks = false;
+        bookmarksSection.classList.add("hidden");
+        if (state.currentUser) {
+            showProfile();
+        } else {
+            welcome.classList.remove("hidden");
+        }
+    });
+
 
 // BOOKMARKS
 function displayBookmarks() {
-    
+    const bookmarksList = document.getElementById("bookmarksList"); 
+    const count = state.bookmarks.length;
+
+
+    document.getElementById("bookmarksTotalCount").textContent = count;
     if (state.bookmarks.length === 0) {
-        bookmarksSection.innerHTML = "<p>Aucun favori sauvegardé.</p>";
+        bookmarksList.innerHTML = "<p>Aucun favori sauvegardé.</p>";
         return;
     }
-    bookmarksSection.innerHTML = state.bookmarks.map(user => `
+    bookmarksList.innerHTML = state.bookmarks.map(user => `
         <div class="bookmark-card">
             <img src="${user.avatar_url}" width="40" style="border-radius:50%">
             <span>@${user.login}</span>
@@ -181,9 +197,9 @@ function clearBookmarks() {
 }
 
 function updateBookmarkCount() {
-    const countEl = document.getElementById("bookmarkCount");
+
     const count = state.bookmarks.length;
-    countEl.textContent = ` ${count} ${count > 1 ? "" : ""}`;
+    document.getElementById("bookmarkCount").textContent = count;
 }
 
 // toggleBookmark
@@ -213,6 +229,7 @@ function toggleBookmarksView() {
         profileSection.classList.add("hidden");
         welcome.classList.add("hidden");
         errorSection.classList.add("hidden");
+        loadingSection.classList.add("hidden");
     } else {
         bookmarksSection.classList.add("hidden");
         if (state.currentUser) {
