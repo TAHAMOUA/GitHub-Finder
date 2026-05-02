@@ -180,5 +180,13 @@ function updateBookmarkCount() {
     const count = state.bookmarks.length;
     countEl.textContent = ` ${count} ${count > 1 ? "" : ""}`;
 }
+// updateBookmarkButton
+function updateBookmarkButton(isBookmarked) {
+    const toggleBtn = document.getElementById("toggleBtn");
+    if (!toggleBtn) return;
+    toggleBtn.textContent = isBookmarked
+        ? "🗑️ Retirer des favoris"
+        : "⭐ Ajouter aux favoris";
+}
 
 updateBookmarkCount();
