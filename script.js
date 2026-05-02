@@ -72,6 +72,7 @@ function showLoading() {
     welcome.classList.add("hidden");
     errorSection.classList.add("hidden");
     profileSection.classList.add("hidden");
+    bookmarksSection.classList.add("hidden");
 }
 
 function showError(msg) {
@@ -85,6 +86,7 @@ function showProfile() {
     profileSection.classList.remove("hidden");
     loadingSection.classList.add("hidden");
     errorSection.classList.add("hidden");
+    bookmarksSection.classList.add("hidden");
 }
 
 // API
@@ -154,25 +156,25 @@ document.getElementById('backBtn')
 
 // BOOKMARKS
 function displayBookmarks() {
-    const bookmarksList = document.getElementById("bookmarksList"); 
+    const bookmarksList = document.getElementById("bookmarksList");
     const count = state.bookmarks.length;
 
-
     document.getElementById("bookmarksTotalCount").textContent = count;
-    if (state.bookmarks.length === 0) {
+
+    if (count === 0) {
         bookmarksList.innerHTML = "<p>Aucun favori sauvegardé.</p>";
         return;
     }
-    bookmarksList.innerHTML = state.bookmarks.map(user => `
-        <div class="bookmark-card">
-            <img src="${user.avatar_url}" width="40" style="border-radius:50%">
-            <span>@${user.login}</span>
-            <button onclick="removeBookmark('${user.login}')"></button>
-            <button onclick="searchUser('${user.login}')"></button>
-        </div>
-    `).join("");
-}
 
+    bookmarksList.innerHTML = state.bookmarks.map(user => `
+    <div class="bookmark-card">
+        <img src="${user.avatar_url}" width="40" style="border-radius:50%">
+        <span>@${user.login}</span>
+        <button onclick="searchUser('${user.login}')">🔍</button>
+        <button onclick="removeBookmark('${user.login}')">🗑️</button>
+    </div>
+`).join("");
+}
 
 
 function addBookmark(user) {
@@ -241,3 +243,10 @@ function toggleBookmarksView() {
 }
 
 updateBookmarkCount();
+displayBookmarks();
+
+document.getElementById('retryBtn').addEventListener('click', () => {
+    errorSection.classList.add("hidden");
+    welcome.classList.remove("hidden");
+    searchInput.value = "";
+});
